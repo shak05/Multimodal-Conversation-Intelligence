@@ -1,8 +1,15 @@
 from google import genai
 import json
 import re
+import os
+from dotenv import load_dotenv
 
-client = genai.Client(api_key="AIzaSyDGzTJliA2YQd9c7UGO4CG1y0j6-Pkwmow")
+# Load environment variables
+load_dotenv()
+
+# Get API key from .env
+API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=API_KEY)
 
 def analyze_transcript(transcript: str):
 

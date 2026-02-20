@@ -2,7 +2,6 @@ import requests
 import base64
 import json
 
-API_KEY = "AIzaSyDGzTJliA2YQd9c7UGO4CG1y0j6-Pkwmow"
 MODEL_NAME = "gemini-2.5-flash"
 ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent?key={API_KEY}"
 
