@@ -1,0 +1,18 @@
+{
+    "language": "English (with Malayalam phrases)",
+    "summary": "A customer contacted Secure Trust Bank reporting two unauthorized transactions totaling \u20b930,500, suspecting fraud. The customer expressed urgency for an immediate refund, mentioning a previous fraud attempt and current stress. The agent blocked the card and initiated a high-risk fraud investigation. The customer threatened to file an RBI complaint, take legal action, and close the account if the issue was not resolved quickly and the refund processed.",
+    "customer_sentiment": "Negative",
+    "primary_intent": "Report unauthorized transactions/fraud and request a refund.",
+    "compliance_violations": [
+        "Fraud Refund SLA: The agent quoted a refund process of five to seven working days, which exceeds the 3-working-day SLA for high-risk fraud refunds as the case was later identified as 'high-risk fraud'."
+    ],
+    "agent_score": 6,
+    "foul_language_detected": false,
+    "foul_language_examples": [],
+    "threat_detected": true,
+    "threat_examples": [
+        "If this is not resolved quickly, I will file a complaint with RBI and take legal action.",
+        "Otherwise, I will close this account."
+    ],
+    "compliance_risk_level": "high"
+}

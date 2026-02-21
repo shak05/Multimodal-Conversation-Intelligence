@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Multimodal Conversation Intelligence</title>
+	<style>
+		:root{
+			--bg:#f5f7fb; --card:#fff; --muted:#6b7280; --accent:#0f6fff;
+			--radius:12px; --shadow:0 6px 18px rgba(15,23,42,0.08);
+			font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+		}
+		html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
+		.wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:48px}
+		.card{width:100%;max-width:900px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px}
+		h1{margin:0 0 8px;font-size:20px}
+		p.lead{margin:0 0 20px;color:var(--muted)}
+
+		.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+		.file-input{flex:1;display:flex;gap:12px;align-items:center}
+		input[type=file]{display:block}
+
+		button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+		button[disabled]{opacity:.5;cursor:not-allowed}
+
+		.meta{margin-top:18px;color:var(--muted);font-size:13px}
+
+		.output{margin-top:20px;display:flex;gap:12px}
+		pre{flex:1;background:#0b1220;color:#e6eef8;padding:18px;border-radius:10px;overflow:auto;max-height:480px}
+
+		.side{width:160px;display:flex;flex-direction:column;gap:8px}
+
+		.spinner{width:18px;height:18px;border-radius:50%;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--accent);animation:spin .9s linear infinite;display:inline-block}
+		@keyframes spin{to{transform:rotate(360deg)}}
+
+		.muted{color:var(--muted);font-size:13px}
+
+		footer{margin-top:18px;text-align:right;color:var(--muted);font-size:12px}
+		a.small{color:var(--accent);text-decoration:none}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<div class="card">
+			<h1>Multimodal Conversation Intelligence</h1>
+			<p class="lead">Upload a call recording (MP3 / MPEG / WAV) and run analysis. Demo-ready minimal UI.</p>
+
+			<div class="controls">
+				<div class="file-input">
+					<select id="fileSelect">
+						<option value="">-- Select audio file --</option>
+					</select>
+					<div class="meta">Files from server: files/ (MP3 / MPEG / WAV)</div>
+				</div>
+
+				<button id="analyzeBtn" disabled>Analyze</button>
+				<div id="status" class="muted"></div>
+			</div>
+
+			<div class="output">
+				<pre id="output">No analysis yet.</pre>
+				<div class="side">
+					<button id="downloadBtn" disabled>Download JSON</button>
+					<div style="height:8px"></div>
+					<div id="loaderArea" class="muted">Status: idle</div>
+				</div>
+			</div>
+
+			<footer>Backend: <a class="small" href="http://127.0.0.1:8000/analyze">/analyze</a></footer>
+		</div>
+	</div>
+
+	<script>
+		const fileSelect = document.getElementById('fileSelect');
+		const analyzeBtn = document.getElementById('analyzeBtn');
+		const output = document.getElementById('output');
+		const downloadBtn = document.getElementById('downloadBtn');
+		const loaderArea = document.getElementById('loaderArea');
+
+		let lastJson = null;
+
+		// Populate file list on load
+		async function loadFiles(){
+			try{
+				const res = await fetch('http://127.0.0.1:8000/files');
+				if(!res.ok){
+					const txt = await res.text();
+					output.textContent = `Failed to load files: ${res.status} ${txt}`;
+					return;
+				}
+				const data = await res.json();
+				const files = data.files || [];
+				files.forEach(f => {
+					const opt = document.createElement('option'); opt.value = f; opt.text = f; fileSelect.appendChild(opt);
+				});
+			}catch(err){
+				output.textContent = 'Failed to fetch file list: ' + (err.message || err);
+			}
+		}
+
+		fileSelect.addEventListener('change', () => {
+			analyzeBtn.disabled = !fileSelect.value;
+		});
+
+		// Load available files immediately
+		loadFiles();
+
+		function setLoading(loading){
+            if(loading){
+                analyzeBtn.disabled = true;
+                loaderArea.innerHTML = '<span class="spinner"></span> Processing...';
+            } else {
+                analyzeBtn.disabled = !fileSelect.value;
+                loaderArea.innerText = 'Status: complete';
+            }
+        }
+
+		analyzeBtn.addEventListener('click', async () => {
+			const selected = fileSelect.value;
+			if(!selected) return;
+
+			setLoading(true);
+			output.textContent = 'Requesting analysis...';
+			downloadBtn.disabled = true;
+			lastJson = null;
+
+			try {
+				const res = await fetch('http://127.0.0.1:8000/analyze', {
+					method: 'POST',
+					headers: {'Content-Type':'application/json'},
+					body: JSON.stringify({filename: selected})
+				});
+
+				if(!res.ok){
+					const txt = await res.text();
+					output.textContent = `Server error (${res.status}): ${txt}`;
+					setLoading(false);
+					return;
+				}
+
+				const data = await res.json();
+				lastJson = data;
+				output.textContent = JSON.stringify(data, null, 4);
+				downloadBtn.disabled = false;
+			} catch (err){
+				output.textContent = 'Network or processing error: ' + (err.message || err);
+			} finally {
+				setLoading(false);
+			}
+		});
+
+		downloadBtn.addEventListener('click', () => {
+			if(!lastJson) return;
+			const blob = new Blob([JSON.stringify(lastJson, null, 4)], {type: 'application/json'});
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url; a.download = 'analysis_output.json';
+			document.body.appendChild(a); a.click(); a.remove();
+			URL.revokeObjectURL(url);
+		});
+	</script>
+</body>
+</html>

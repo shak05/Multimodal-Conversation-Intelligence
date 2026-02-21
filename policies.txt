@@ -1,0 +1,11 @@
+Fraud Refund SLA:
+High-risk fraud refunds must be processed within 3 working days.
+
+Escalation Policy:
+If customer threatens legal action or RBI complaint, case must be escalated immediately.
+
+Agent Conduct Policy:
+Agent must show empathy and apologize in fraud-related complaints.
+
+Card Blocking Policy:
+Card must be blocked immediately if fraud is suspected.
