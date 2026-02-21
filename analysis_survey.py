@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 API_KEY = os.getenv("GEMINI_API_KEY")
+print("DEBUG KEY:", API_KEY)
 client = genai.Client(api_key=API_KEY)
 
 
