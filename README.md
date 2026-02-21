@@ -33,37 +33,45 @@ The final output includes:
 
 ---
 
-# 🏗 System Architecture
+## 🏗 System Architecture
+
+```text
 Frontend (UI)
-↓
+        │
+        ▼
 FastAPI Backend (api.py)
-↓
-Audio → Gemini (Transcription)
-↓
-Policy Retrieval (RAG)
-↓
-Gemini Structured Intelligence Extraction
-↓
+        │
+        ▼
+Audio Transcription (Gemini)
+        │
+        ▼
+Policy Retrieval Layer (RAG)
+        │
+        ▼
+Structured Intelligence Extraction (Gemini)
+        │
+        ▼
 Deterministic Risk Engine
-↓
-Structured JSON Output
+        │
+        ▼
+Final Structured JSON Output
 
 
 ---
 
-# 📂 Project Structure
+## 📁 Project Structure
 
-
+```text
 .
-├── api.py # FastAPI orchestration layer
-├── analysis_survey.py # LLM-based intelligence extraction
-├── transcript_service.py # Audio transcription logic
-├── rag_service.py # Policy retrieval (RAG)
-├── risk_engine.py # Deterministic risk scoring
-├── policies.txt # Banking policy document
+├── api.py                  # FastAPI orchestration layer
+├── analysis_survey.py      # LLM-based intelligence extraction
+├── transcript_service.py   # Audio transcription logic
+├── rag_service.py          # Policy retrieval (RAG)
+├── risk_engine.py          # Deterministic risk scoring
+├── policies.txt            # Banking policy document
 ├── frontend/
-│ └── index.html # Simple web UI
-├── files/ # Sample audio files
+│   └── index.html          # Simple web UI
+├── files/                  # Sample audio files
 ├── requirements.txt
 ├── .env
 └── README.md
